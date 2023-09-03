@@ -1,18 +1,30 @@
-import Test from "@/models/testModel";
+import User from "@/models/User";
 import connectMongo from "@/utils/connectdb";
-const getUsers = async (req, res) => {
-   console.log("CONNECTING TO MONGO");
-   await connectMongo();
-   try {
-      console.log("CONNECTED TO MONGO");
-      const test = await Test.find();
-      console.log("DATA FETCHED");
-      return res.status(200).json({ test });
-      // Dont forget the await keyword
-   } catch (error) {
-      console.log(error);
-      return res.status(404).json({ error });
+import { sign } from "jsonwebtoken";
+
+const login = async (req, res) => {
+   const { email, password } = req.body;
+
+   if (!email || !password) {
+      return res
+         .status(400)
+         .json({ message: "Please provide email and password" });
    }
+
+   try {
+      // await connectMongo();
+      const user = await User.findOne({ email });
+
+      if (!user) {
+         return res.status(401).json({ message: "Email not found" });
+      }
+
+      const token = sign({ userId: user._id, name: user.name }, "jwt-secret", {
+         expiresIn: "30d"
+      });
+
+      return res.status(200).json({ user: { name: user.name }, token });
+   } catch (error) {}
 };
 
-export default getUsers;
+export default login;

@@ -1,14 +1,11 @@
 import connectMongo from "@/utils/connectdb";
 import getUsers from "@/api/login";
 import signup from "@/api/signup";
+
 export default async function (req, res) {
    const { method } = req;
 
    switch (method) {
-      case "GET":
-         getUsers(req, res);
-         break;
-
       case "POST":
          signup(req, res);
          break;
